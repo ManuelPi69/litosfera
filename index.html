@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Litosfera Viva</title>
+<meta name="description" content="Modelo 3D/VR de uma zona de subducção com estratovulcão ativo: trilha de aprendizagem em Geografia Física e Geologia.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<header id="top">
+  <div class="brand"><span class="dot"></span><b>Litosfera Viva</b><small>Tectônica &amp; Erupção</small></div>
+  <div class="actions">
+    <button id="btnView" class="ghost" title="Recentrar a câmera">⌖ Recentrar</button>
+    <button id="vrBtn" class="vr" disabled>Verificando VR…</button>
+    <button id="toggle" class="ghost" title="Mostrar/ocultar painel">☰</button>
+  </div>
+</header>
+
+<aside id="panel">
+  <nav id="tabs" aria-label="Trilha de aprendizagem"></nav>
+  <div id="body"></div>
+  <p id="vrMsg" role="status"></p>
+</aside>
+
+<div id="toast" role="status"></div>
+<div id="boot"><div><div class="spin"></div><p id="bootMsg">Carregando o planeta…</p></div></div>
+
+<script>
+/* three.js r128: CDN principal + planos B; depois os módulos do app em ordem */
+(function () {
+  var urls = ["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
+              "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js",
+              "https://unpkg.com/three@0.128.0/build/three.min.js",
+              "js/vendor/three.min.js"];
+  var mods = ["data", "world", "volcano", "flow", "map", "items", "ui", "vrpanel", "main"];
+  var msg = document.getElementById("bootMsg");
+  function load(src, ok, err) { var s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = err; document.head.appendChild(s); }
+  function tryThree(i) {
+    if (window.THREE) return boot();
+    if (i >= urls.length) { msg.textContent = "Não foi possível carregar o Three.js. Verifique a conexão com a internet."; return; }
+    load(urls[i], function () { window.THREE ? boot() : tryThree(i + 1); }, function () { tryThree(i + 1); });
+  }
+  function boot() {
+    (function next(k) {
+      if (k >= mods.length) { var b = document.getElementById("boot"); b.classList.add("off"); setTimeout(function () { b.style.display = "none"; }, 600); return; }
+      load("js/" + mods[k] + ".js", function () { next(k + 1); }, function () { msg.textContent = "Erro ao carregar js/" + mods[k] + ".js"; });
+    })(0);
+  }
+  tryThree(0);
+})();
+</script>
+</body>
+</html>
